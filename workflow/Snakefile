@@ -1,59 +1,97 @@
 configfile: "config/config.yaml"
 
-SERIES_ID = config["series"]["fred_id"]
-DB_PATH = config["db"]["path"]
+ASSETS = config["assets"]
+ASSET_KEYS = [asset["key"] for asset in ASSETS]
+ASSET_CONFIG = {asset["key"]: asset for asset in ASSETS}
+
+DB_DIR = config["db"]["dir"]
 TABLE = config["db"]["table"]
 
 LAGS = ",".join(str(x) for x in config["features"]["lags"])
 WINS = ",".join(str(x) for x in config["features"]["rolling_windows"])
 TEST_SIZE = config["model"]["test_size"]
+RECENT_MONTHS = config["reporting"]["recent_months"]
+LLM_MODEL = config["llm"]["model"]
+LLM_HOST = config["llm"]["host"]
+
 
 rule all:
     input:
-        "reports/metrics.json",
-        "reports/preds.csv",
-        "reports/latest_note.md"
+        expand("reports/metrics/{asset}.json", asset=ASSET_KEYS),
+        expand("reports/preds/{asset}.csv", asset=ASSET_KEYS),
+        expand("reports/notes/{asset}.md", asset=ASSET_KEYS),
+        "reports/cross_asset_metrics.csv",
+        "reports/cross_asset_summary.json",
+        "reports/plots/recent_returns.png",
+        "reports/plots/model_metrics.png",
+        "reports/plots/prediction_compression.png",
+        "reports/plots/actual_vs_predicted.png",
+        "reports/cross_asset_note.md"
 
 
 rule ingest:
     output:
-        "data/raw/coffee.csv"
+        "data/raw/{asset}.csv"
+    params:
+        series_id=lambda wildcards: ASSET_CONFIG[wildcards.asset]["fred_id"],
+        asset_key=lambda wildcards: wildcards.asset,
+        asset_name=lambda wildcards: ASSET_CONFIG[wildcards.asset]["name"]
     shell:
-        "mkdir -p data/raw && python src/fetch_tseries.py --series-id {SERIES_ID} --out-csv {output}"
+        (
+            "mkdir -p data/raw && "
+            "python src/fetch_tseries.py "
+            "--series-id {params.series_id} "
+            "--asset-key {params.asset_key} "
+            "--asset-name '{params.asset_name}' "
+            "--out-csv {output}"
+        )
+
 
 rule store:
     input:
-        "data/raw/coffee.csv"
+        "data/raw/{asset}.csv"
     output:
-        DB_PATH
+        db="data/sqlite/{asset}.db"
+    params:
+        table=TABLE
     shell:
-        "mkdir -p data && python src/store_sqlite.py --in-csv {input} --db-path {DB_PATH} --table {TABLE}"
+        (
+            "mkdir -p {DB_DIR} && "
+            "python src/store_sqlite.py "
+            "--in-csv {input} "
+            "--db-path {output.db} "
+            "--table {params.table}"
+        )
+
 
 rule features:
     input:
-        DB_PATH
+        db="data/sqlite/{asset}.db"
     output:
-        "data/processed/coffee_features.csv"
+        "data/processed/{asset}_features.csv"
+    params:
+        table=TABLE
     shell:
         (
             "mkdir -p data/processed && "
             "python src/features.py "
-            "--db-path {DB_PATH} "
-            "--in-table {TABLE} "
+            "--db-path {input.db} "
+            "--in-table {params.table} "
             "--out-csv {output} "
             "--lags {LAGS} "
             "--windows {WINS}"
         )
 
+
 rule train_eval:
     input:
-        "data/processed/coffee_features.csv"
+        "data/processed/{asset}_features.csv"
     output:
-        metrics="reports/metrics.json",
-        preds="reports/preds.csv"
+        metrics="reports/metrics/{asset}.json",
+        preds="reports/preds/{asset}.csv"
     shell:
         (
-            "mkdir -p reports && "
+            "mkdir -p reports/metrics reports/preds && "
             "python src/train_eval.py "
             "--features-csv {input} "
             "--out-metrics {output.metrics} "
@@ -61,33 +99,74 @@ rule train_eval:
             "--test-size {TEST_SIZE}"
         )
 
-# rule llm_report:
-#     input:
-#         metrics="reports/metrics.json",
-#         preds="reports/preds.csv"
-#     output:
-#         "reports/latest_note.md"
-#     params:
-#         recent_months=config["reporting"]["recent_months"]
-#     shell:
-#         "python src/llm_report.py --metrics-json {input.metrics} --preds-csv {input.preds} --out-md {output} --recent-months {params.recent_months} --model llama3.1:8b"
+
 rule llm_report:
     input:
-        metrics="reports/metrics.json",
-        preds="reports/preds.csv"
+        metrics="reports/metrics/{asset}.json",
+        preds="reports/preds/{asset}.csv"
     output:
-        "reports/latest_note.md"
-    params:
-        recent_months=config["reporting"]["recent_months"],
-        llm_model=config["llm"]["model"],
-        llm_host=config["llm"]["host"]
+        "reports/notes/{asset}.md"
     shell:
         (
+            "mkdir -p reports/notes && "
             "python src/llm_report.py "
             "--metrics-json {input.metrics} "
             "--preds-csv {input.preds} "
             "--out-md {output} "
-            "--recent-months {params.recent_months} "
-            "--model {params.llm_model} "
-            "--host {params.llm_host}"
+            "--recent-months {RECENT_MONTHS} "
+            "--model {LLM_MODEL} "
+            "--host {LLM_HOST}"
+        )
+
+
+rule compare_assets:
+    input:
+        metrics=expand("reports/metrics/{asset}.json", asset=ASSET_KEYS),
+        preds=expand("reports/preds/{asset}.csv", asset=ASSET_KEYS)
+    output:
+        summary_csv="reports/cross_asset_metrics.csv",
+        summary_json="reports/cross_asset_summary.json"
+    shell:
+        (
+            "python src/compare_assets.py "
+            "--metrics-json {input.metrics} "
+            "--preds-csv {input.preds} "
+            "--out-csv {output.summary_csv} "
+            "--out-json {output.summary_json} "
+            "--recent-months {RECENT_MONTHS}"
+        )
+
+
+rule plot_assets:
+    input:
+        metrics=expand("reports/metrics/{asset}.json", asset=ASSET_KEYS),
+        preds=expand("reports/preds/{asset}.csv", asset=ASSET_KEYS)
+    output:
+        "reports/plots/recent_returns.png",
+        "reports/plots/model_metrics.png",
+        "reports/plots/prediction_compression.png",
+        "reports/plots/actual_vs_predicted.png"
+    shell:
+        (
+            "MPLCONFIGDIR=/tmp/matplotlib-cache XDG_CACHE_HOME=/tmp "
+            "python src/plot_assets.py "
+            "--metrics-json {input.metrics} "
+            "--preds-csv {input.preds} "
+            "--out-dir reports/plots "
+            "--recent-months {RECENT_MONTHS}"
+        )
+
+
+rule cross_asset_report:
+    input:
+        "reports/cross_asset_summary.json"
+    output:
+        "reports/cross_asset_note.md"
+    shell:
+        (
+            "python src/cross_asset_report.py "
+            "--summary-json {input} "
+            "--out-md {output} "
+            "--model {LLM_MODEL} "
+            "--host {LLM_HOST}"
         )

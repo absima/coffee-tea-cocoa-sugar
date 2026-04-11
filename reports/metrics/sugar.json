@@ -1,0 +1,29 @@
+{
+  "asset_key": "sugar",
+  "asset_name": "Sugar",
+  "rows_total": 396,
+  "rows_train": 317,
+  "rows_test": 79,
+  "model": "Ridge(alpha=1.0)",
+  "mae": 0.05047930573100224,
+  "rmse": 0.06795241748795643,
+  "correlation": -0.06845269064687395,
+  "directional_accuracy": 0.5063291139240507,
+  "y_true_std": 0.06780469032417893,
+  "y_pred_std": 0.005343087024362328,
+  "test_period_start": "2019-07-01",
+  "test_period_end": "2026-01-01",
+  "n_features": 10,
+  "features_used": [
+    "r_lag_1",
+    "r_lag_3",
+    "r_lag_6",
+    "r_lag_12",
+    "r_roll_mean_3",
+    "r_roll_std_3",
+    "r_roll_mean_6",
+    "r_roll_std_6",
+    "r_roll_mean_12",
+    "r_roll_std_12"
+  ]
+}

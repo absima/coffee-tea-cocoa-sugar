@@ -1,11 +1,24 @@
-series:
-  name: "Coffee (Arabica)"
-  fred_id: "PCOFFOTMUSDM"
-  frequency: "monthly"
+assets:
+  - key: "coffee"
+    name: "Coffee (Arabica)"
+    fred_id: "PCOFFOTMUSDM"
+    frequency: "monthly"
+  - key: "cocoa"
+    name: "Cocoa"
+    fred_id: "PCOCOUSDM"
+    frequency: "monthly"
+  - key: "tea"
+    name: "Tea"
+    fred_id: "PTEAUSDM"
+    frequency: "monthly"
+  - key: "sugar"
+    name: "Sugar"
+    fred_id: "PSUGAISAUSDM"
+    frequency: "monthly"
 
 db:
-  path: "data/market.db"
-  table: "coffee_prices"
+  dir: "data/sqlite"
+  table: "commodity_prices"
 
 features:
   lags: [1, 3, 6, 12]

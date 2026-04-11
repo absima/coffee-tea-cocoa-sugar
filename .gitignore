@@ -1,6 +1,3 @@
-.venv/
-.env
-__pycache__/
-.snakemake/
-data/
 .DS_Store
+.snakemake/
+.venv/

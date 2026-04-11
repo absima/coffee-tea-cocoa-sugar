@@ -53,7 +53,8 @@ def buildAnalysisBundle(metrics: dict, preds_csv: str, recent_months: int = 12) 
     recent["abs_err"] = (recent["y_true"] - recent["y_pred"]).abs()
 
     bundle = {
-        "asset": "Coffee (Arabica)",
+        "asset": metrics.get("asset_name", "Unknown asset"),
+        "asset_key": metrics.get("asset_key", "unknown"),
         "target_variable": "monthly log returns (not prices)",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
         "test_period": {
@@ -65,6 +66,10 @@ def buildAnalysisBundle(metrics: dict, preds_csv: str, recent_months: int = 12) 
         "metrics": {
             "mae": metrics.get("mae"),
             "rmse": metrics.get("rmse"),
+            "correlation": metrics.get("correlation"),
+            "directional_accuracy": metrics.get("directional_accuracy"),
+            "y_true_std": metrics.get("y_true_std"),
+            "y_pred_std": metrics.get("y_pred_std"),
             "n_features": metrics.get("n_features"),
         },
         "recent_window_months": int(recent_months),

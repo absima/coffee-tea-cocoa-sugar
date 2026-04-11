@@ -1,0 +1,29 @@
+{
+  "asset_key": "tea",
+  "asset_name": "Tea",
+  "rows_total": 396,
+  "rows_train": 317,
+  "rows_test": 79,
+  "model": "Ridge(alpha=1.0)",
+  "mae": 0.039393747372317614,
+  "rmse": 0.04977819577461584,
+  "correlation": 0.2329448599923987,
+  "directional_accuracy": 0.5443037974683544,
+  "y_true_std": 0.05108215100799806,
+  "y_pred_std": 0.006007826924718726,
+  "test_period_start": "2019-07-01",
+  "test_period_end": "2026-01-01",
+  "n_features": 10,
+  "features_used": [
+    "r_lag_1",
+    "r_lag_3",
+    "r_lag_6",
+    "r_lag_12",
+    "r_roll_mean_3",
+    "r_roll_std_3",
+    "r_roll_mean_6",
+    "r_roll_std_6",
+    "r_roll_mean_12",
+    "r_roll_std_12"
+  ]
+}
