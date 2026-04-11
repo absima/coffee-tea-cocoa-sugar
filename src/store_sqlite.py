@@ -9,16 +9,19 @@ from sqlalchemy import create_engine
 
 def main(in_csv: str, db_path: str, table_name: str) -> None:
     """
-    Read a (date, value) CSV file and write it to a SQLite table.
+    Load a raw series CSV into a SQLite table.
 
-    Parameters
-    ----------
-    in_csv:
-        Path to the input CSV file.
-    db_path:
-        Path to the SQLite database file.
-    table_name:
-        Name of the table to create or replace.
+    Args:
+        in_csv: str.
+        Input CSV path containing at least `date` and `value`.
+        db_path: str.
+        Output SQLite database path.
+        table_name: str.
+        Table name to create or replace.
+
+    Returns:
+        None.
+        Writes the CSV contents into SQLite.
     """
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
 

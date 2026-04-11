@@ -13,7 +13,18 @@ import pandas as pd
 plt.style.use("seaborn-v0_8-whitegrid")
 
 
-def load_metrics(metrics_paths: list[str]) -> pd.DataFrame:
+def LoadMetrics(metrics_paths: list[str]) -> pd.DataFrame:
+    """
+    Load per-asset metrics JSON files into a plotting dataframe.
+
+    Args:
+        metrics_paths: list[str].
+        Paths to metrics JSON files.
+
+    Returns:
+        metrics_df: pd.DataFrame.
+        Combined metrics table sorted by asset name.
+    """
     rows = []
     for path in metrics_paths:
         with open(path, "r", encoding="utf-8") as f:
@@ -23,7 +34,18 @@ def load_metrics(metrics_paths: list[str]) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("asset_name").reset_index(drop=True)
 
 
-def load_predictions(pred_paths: list[str]) -> pd.DataFrame:
+def LoadPredictions(pred_paths: list[str]) -> pd.DataFrame:
+    """
+    Load per-asset prediction CSV files into a plotting dataframe.
+
+    Args:
+        pred_paths: list[str].
+        Paths to prediction CSV files.
+
+    Returns:
+        preds_df: pd.DataFrame.
+        Combined prediction table sorted by asset and date.
+    """
     frames = []
     for path in pred_paths:
         df = pd.read_csv(path, parse_dates=["date"])
@@ -35,7 +57,22 @@ def load_predictions(pred_paths: list[str]) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True).sort_values(["asset_name", "date"]).reset_index(drop=True)
 
 
-def plot_recent_returns(preds: pd.DataFrame, out_path: str, recent_months: int) -> None:
+def PlotRecentReturns(preds: pd.DataFrame, out_path: str, recent_months: int) -> None:
+    """
+    Plot recent observed returns for each commodity on one chart.
+
+    Args:
+        preds: pd.DataFrame.
+        Combined prediction dataframe across assets.
+        out_path: str.
+        Output image path.
+        recent_months: int.
+        Number of recent observations to plot per asset.
+
+    Returns:
+        None.
+        Writes the recent-returns chart to disk.
+    """
     fig, ax = plt.subplots(figsize=(11, 6))
     for asset_name, asset_df in preds.groupby("asset_name"):
         recent = asset_df.sort_values("date").tail(recent_months)
@@ -52,7 +89,20 @@ def plot_recent_returns(preds: pd.DataFrame, out_path: str, recent_months: int) 
     plt.close(fig)
 
 
-def plot_model_metrics(metrics: pd.DataFrame, out_path: str) -> None:
+def PlotModelMetrics(metrics: pd.DataFrame, out_path: str) -> None:
+    """
+    Plot side-by-side model quality bars for each commodity.
+
+    Args:
+        metrics: pd.DataFrame.
+        Per-asset metrics dataframe.
+        out_path: str.
+        Output image path.
+
+    Returns:
+        None.
+        Writes the model-metrics chart to disk.
+    """
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     metrics = metrics.sort_values("rmse")
 
@@ -72,7 +122,20 @@ def plot_model_metrics(metrics: pd.DataFrame, out_path: str) -> None:
     plt.close(fig)
 
 
-def plot_prediction_compression(metrics: pd.DataFrame, out_path: str) -> None:
+def PlotPredictionCompression(metrics: pd.DataFrame, out_path: str) -> None:
+    """
+    Plot prediction volatility relative to observed volatility by asset.
+
+    Args:
+        metrics: pd.DataFrame.
+        Per-asset metrics dataframe.
+        out_path: str.
+        Output image path.
+
+    Returns:
+        None.
+        Writes the compression chart to disk.
+    """
     fig, ax = plt.subplots(figsize=(9, 5))
     ratios = metrics["y_pred_std"] / metrics["y_true_std"].replace(0, pd.NA)
     ax.bar(metrics["asset_name"], ratios, color="#F6BD16")
@@ -85,7 +148,22 @@ def plot_prediction_compression(metrics: pd.DataFrame, out_path: str) -> None:
     plt.close(fig)
 
 
-def plot_actual_vs_predicted(preds: pd.DataFrame, out_path: str, recent_months: int) -> None:
+def PlotActualVsPredicted(preds: pd.DataFrame, out_path: str, recent_months: int) -> None:
+    """
+    Plot recent observed and predicted returns in one panel per asset.
+
+    Args:
+        preds: pd.DataFrame.
+        Combined prediction dataframe across assets.
+        out_path: str.
+        Output image path.
+        recent_months: int.
+        Number of recent observations to show per asset.
+
+    Returns:
+        None.
+        Writes the multi-panel observed-vs-predicted chart to disk.
+    """
     assets = list(preds["asset_name"].drop_duplicates())
     n_assets = len(assets)
     n_cols = 2
@@ -115,17 +193,34 @@ def plot_actual_vs_predicted(preds: pd.DataFrame, out_path: str, recent_months: 
 
 
 def main(metrics_json: list[str], preds_csv: list[str], out_dir: str, recent_months: int) -> None:
-    metrics = load_metrics(metrics_json)
-    preds = load_predictions(preds_csv)
+    """
+    Generate all cross-asset comparison plots for the reporting stage.
+
+    Args:
+        metrics_json: list[str].
+        Paths to per-asset metrics JSON files.
+        preds_csv: list[str].
+        Paths to per-asset prediction CSV files.
+        out_dir: str.
+        Output directory for generated plots.
+        recent_months: int.
+        Number of recent observations to visualize.
+
+    Returns:
+        None.
+        Writes the plot images to the output directory.
+    """
+    metrics = LoadMetrics(metrics_json)
+    preds = LoadPredictions(preds_csv)
 
     if metrics.empty or preds.empty:
         raise ValueError("Expected non-empty metrics and predictions for plot generation.")
 
     os.makedirs(out_dir, exist_ok=True)
-    plot_recent_returns(preds, os.path.join(out_dir, "recent_returns.png"), recent_months)
-    plot_model_metrics(metrics, os.path.join(out_dir, "model_metrics.png"))
-    plot_prediction_compression(metrics, os.path.join(out_dir, "prediction_compression.png"))
-    plot_actual_vs_predicted(preds, os.path.join(out_dir, "actual_vs_predicted.png"), recent_months)
+    PlotRecentReturns(preds, os.path.join(out_dir, "recent_returns.png"), recent_months)
+    PlotModelMetrics(metrics, os.path.join(out_dir, "model_metrics.png"))
+    PlotPredictionCompression(metrics, os.path.join(out_dir, "prediction_compression.png"))
+    PlotActualVsPredicted(preds, os.path.join(out_dir, "actual_vs_predicted.png"), recent_months)
 
     print(f"Wrote plots -> {out_dir}")
 

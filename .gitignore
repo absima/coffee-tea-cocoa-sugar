@@ -1,6 +1,6 @@
 .DS_Store
-.snakemake/
-.venv/
-__pycache__/
-.snakemake/
-data/
+.snakemake
+.venv
+__pycache__
+.snakemake
+data

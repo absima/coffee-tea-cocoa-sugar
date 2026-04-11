@@ -8,32 +8,21 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 
-def buildFeatureMatrix(df: pd.DataFrame, lags: list[int], windows: list[int]) -> pd.DataFrame:
+def BuildFeatureMatrix(df: pd.DataFrame, lags: list[int], windows: list[int]) -> pd.DataFrame:
     """
-    Build a supervised learning dataset from a time series.
+    Build lagged and rolling return features for one-step-ahead prediction.
 
-    The target is next-step log return:
-        log_return[t] = log(price[t]) - log(price[t-1])
-        y_next_return[t] = log_return[t+1]
+    Args:
+        df: pd.DataFrame.
+        Input dataframe with at least `date` and `value` columns.
+        lags: list[int].
+        Lag offsets used to create return features.
+        windows: list[int].
+        Rolling window sizes used to create summary statistics.
 
-    Features:
-    - Lagged log returns: r_lag_k
-    - Rolling mean/std of log returns: r_roll_mean_w, r_roll_std_w
-
-    Parameters
-    ----------
-    df:
-        DataFrame with at least columns ["date", "value"].
-    lags:
-        Return lags to include as features (e.g., [1, 3, 6, 12]).
-    windows:
-        Rolling windows to compute return statistics (e.g., [3, 6, 12]).
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing original columns plus engineered features and target.
-        Rows with missing values introduced by lag/rolling/shift are dropped.
+    Returns:
+        feat_df: pd.DataFrame.
+        Feature matrix with lag/rolling columns and `y_next_return` target.
     """
     df = df.sort_values("date").copy()
 
@@ -60,20 +49,23 @@ def buildFeatureMatrix(df: pd.DataFrame, lags: list[int], windows: list[int]) ->
 
 def main(db_path: str, in_table: str, out_csv: str, lags: list[int], windows: list[int]) -> None:
     """
-    Read a time series from SQLite, build features/target, and write a model-ready CSV.
+    Read a stored series, engineer features, and save a model-ready CSV.
 
-    Parameters
-    ----------
-    db_path:
-        Path to the SQLite database.
-    in_table:
-        Name of the table to read (must contain date, value).
-    out_csv:
-        Output CSV path for the engineered dataset.
-    lags:
-        List of lag steps used for lagged-return features.
-    windows:
-        List of rolling window sizes used for rolling statistics features.
+    Args:
+        db_path: str.
+        SQLite database path.
+        in_table: str.
+        Source table name.
+        out_csv: str.
+        Destination path for engineered features.
+        lags: list[int].
+        Lag offsets to include.
+        windows: list[int].
+        Rolling windows to include.
+
+    Returns:
+        None.
+        Writes the engineered feature dataset to disk.
     """
     engine = create_engine(f"sqlite:///{db_path}")
     df = pd.read_sql_table(in_table, engine)
@@ -85,7 +77,7 @@ def main(db_path: str, in_table: str, out_csv: str, lags: list[int], windows: li
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df = df.dropna(subset=["date"]).copy()
 
-    feat = buildFeatureMatrix(df, lags=lags, windows=windows)
+    feat = BuildFeatureMatrix(df, lags=lags, windows=windows)
 
     os.makedirs(os.path.dirname(out_csv), exist_ok=True)
     feat.to_csv(out_csv, index=False)

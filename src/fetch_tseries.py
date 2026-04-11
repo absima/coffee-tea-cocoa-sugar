@@ -10,29 +10,17 @@ import requests
 FRED_CSV_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
 
 
-def fetchFredSeries(series_id: str) -> pd.DataFrame:
+def FetchFredSeries(series_id: str) -> pd.DataFrame:
     """
-    Fetch a time series from FRED and return it as a cleaned DataFrame.
+    Fetch a FRED series and return a cleaned two-column dataframe.
 
-    Parameters
-    ----------
-    series_id:
-        FRED series identifier (e.g., "PCOFFOTMUSDM").
+    Args:
+        series_id: str.
+        FRED series identifier, such as "PCOFFOTMUSDM".
 
-    Returns
-    -------
-    pd.DataFrame
-        A DataFrame with standardized columns:
-        - date: datetime64[ns]
-        - value: float
-        Rows with missing values are dropped and the series is sorted by date.
-
-    Raises
-    ------
-    requests.HTTPError
-        If the FRED endpoint returns a non-200 status code.
-    ValueError
-        If the returned CSV does not have the expected two-column format.
+    Returns:
+        df: pd.DataFrame.
+        Dataframe with normalized `date` and `value` columns sorted by date.
     """
     url = FRED_CSV_URL.format(series_id=series_id)
     response = requests.get(url, timeout=30)
@@ -49,24 +37,31 @@ def fetchFredSeries(series_id: str) -> pd.DataFrame:
     return df
 
 
-def writeSeriesToCsv(
+def WriteSeriesToCsv(
     series_id: str,
     out_csv: str,
     asset_key: str | None = None,
     asset_name: str | None = None,
 ) -> None:
     """
-    Fetch a FRED series and write it to a local CSV file.
+    Fetch a FRED series, attach asset metadata, and write it to CSV.
 
-    Parameters
-    ----------
-    series_id:
-        FRED series identifier.
-    out_csv:
-        Output path (e.g., "data/raw/coffee.csv").
+    Args:
+        series_id: str.
+        FRED series identifier to download.
+        out_csv: str.
+        Destination CSV path.
+        asset_key: str | None.
+        Short machine-friendly asset identifier.
+        asset_name: str | None.
+        Human-readable asset label.
+
+    Returns:
+        None.
+        Writes the fetched series to disk.
     """
     os.makedirs(os.path.dirname(out_csv), exist_ok=True)
-    df = fetchFredSeries(series_id)
+    df = FetchFredSeries(series_id)
     if asset_key:
         df["asset_key"] = asset_key
     if asset_name:
@@ -77,7 +72,14 @@ def writeSeriesToCsv(
 
 def main() -> None:
     """
-    CLI entry point.
+    Parse CLI arguments and run the fetch step.
+
+    Args:
+        None.
+
+    Returns:
+        None.
+        Executes the ingestion CLI workflow.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--series-id", required=True)
@@ -88,7 +90,7 @@ def main() -> None:
 
     series_id = args.series_id
     out_csv = args.out_csv
-    writeSeriesToCsv(
+    WriteSeriesToCsv(
         series_id,
         out_csv,
         asset_key=args.asset_key,

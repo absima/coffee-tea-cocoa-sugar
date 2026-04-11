@@ -10,21 +10,19 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 
-def timeSplit(df: pd.DataFrame, test_size: float) -> tuple[pd.DataFrame, pd.DataFrame]:
+def TimeSplit(df: pd.DataFrame, test_size: float) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Time-ordered train/test split (no shuffling).
+    Split a dataframe into chronological train and test partitions.
 
-    Parameters
-    ----------
-    df:
-        Input dataframe sorted by time (or to be treated as time-ordered).
-    test_size:
-        Fraction of rows to reserve for the test set.
+    Args:
+        df: pd.DataFrame.
+        Time-ordered feature dataframe.
+        test_size: float.
+        Fraction of rows reserved for testing.
 
-    Returns
-    -------
-    (train_df, test_df):
-        Two dataframes split by time order.
+    Returns:
+        train_test_split: tuple[pd.DataFrame, pd.DataFrame].
+        Train and test dataframes split without shuffling.
     """
     n = len(df)
     n_test = max(1, int(round(n * test_size)))
@@ -35,24 +33,21 @@ def timeSplit(df: pd.DataFrame, test_size: float) -> tuple[pd.DataFrame, pd.Data
 
 def main(features_csv: str, out_metrics: str, out_preds: str, test_size: float) -> None:
     """
-    Train a baseline Ridge regression model and write evaluation artifacts.
+    Train the baseline model and write prediction artifacts.
 
-    Inputs
-    ------
-    features_csv:
-        Feature dataset produced by the feature engineering step.
+    Args:
+        features_csv: str.
+        Input feature dataset path.
+        out_metrics: str.
+        Output JSON path for evaluation metrics.
+        out_preds: str.
+        Output CSV path for test predictions.
+        test_size: float.
+        Fraction of rows reserved for the test period.
 
-    Outputs
-    -------
-    out_metrics:
-        JSON file with MAE/RMSE and metadata.
-    out_preds:
-        CSV with columns [date, y_true, y_pred] over the test period.
-
-    Notes
-    -----
-    - Uses a time-ordered split to avoid leakage.
-    - Predicts y_next_return (one-step-ahead log return).
+    Returns:
+        None.
+        Writes model metrics and test-period predictions to disk.
     """
     df = pd.read_csv(features_csv, parse_dates=["date"]).sort_values("date")
 
@@ -63,7 +58,7 @@ def main(features_csv: str, out_metrics: str, out_preds: str, test_size: float) 
     drop_cols = {"date", "value", "log_price", "log_return", target, "asset_key", "asset_name"}
     feature_cols = [c for c in df.columns if c not in drop_cols]
 
-    train, test = timeSplit(df, test_size=test_size)
+    train, test = TimeSplit(df, test_size=test_size)
 
     X_train = train[feature_cols].to_numpy()
     y_train = train[target].to_numpy()

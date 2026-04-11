@@ -26,26 +26,21 @@ Output format (markdown):
 """
 
 
-def buildAnalysisBundle(metrics: dict, preds_csv: str, recent_months: int = 12) -> dict:
+def BuildAnalysisBundle(metrics: dict, preds_csv: str, recent_months: int = 12) -> dict:
     """
-    Build a compact JSON bundle for LLM consumption from evaluation artifacts.
+    Build a grounded summary bundle for the per-asset LLM report.
 
-    The goal is to provide the LLM only with summary facts (metrics + recent errors),
-    rather than raw datasets, so the report is grounded and reproducible.
+    Args:
+        metrics: dict.
+        Evaluation metrics loaded from JSON.
+        preds_csv: str.
+        Prediction CSV path with dates, true values, and predictions.
+        recent_months: int.
+        Number of recent test rows to summarize.
 
-    Parameters
-    ----------
-    metrics:
-        Dict loaded from reports/metrics.json.
-    preds_csv:
-        Path to reports/preds.csv containing date, y_true, y_pred.
-    recent_months:
-        Number of most recent test rows to summarize.
-
-    Returns
-    -------
-    dict
-        A JSON-serializable summary bundle.
+    Returns:
+        bundle: dict.
+        Compact JSON-serializable facts used as the LLM source of truth.
     """
     preds = pd.read_csv(preds_csv, parse_dates=["date"]).sort_values("date")
 
@@ -91,28 +86,21 @@ def buildAnalysisBundle(metrics: dict, preds_csv: str, recent_months: int = 12) 
     return bundle
 
 
-def callOllama(model: str, prompt: str, host: str = "http://localhost:11434") -> str:
+def CallOllama(model: str, prompt: str, host: str = "http://localhost:11434") -> str:
     """
-    Call a local Ollama server to generate a completion.
+    Send a prompt to the local Ollama server and return the text response.
 
-    Parameters
-    ----------
-    model:
-        Ollama model name (e.g., "llama3.1:8b").
-    prompt:
-        Full prompt to send (system rules + user task + JSON bundle).
-    host:
-        Ollama host URL (default: http://localhost:11434).
+    Args:
+        model: str.
+        Ollama model name.
+        prompt: str.
+        Full prompt string sent to the model.
+        host: str.
+        Ollama base URL.
 
-    Returns
-    -------
-    str
-        The generated text response.
-
-    Raises
-    ------
-    RuntimeError
-        If Ollama is not reachable or returns an unexpected response.
+    Returns:
+        response_text: str.
+        Generated markdown text from the local model.
     """
     url = f"{host}/api/generate"
     payload = {"model": model, "prompt": prompt, "stream": False}
@@ -135,12 +123,30 @@ def callOllama(model: str, prompt: str, host: str = "http://localhost:11434") ->
 
 def main(metrics_json: str, preds_csv: str, out_md: str, recent_months: int, model: str, host: str) -> None:
     """
-    Generate an analyst-style markdown note from evaluation artifacts using a local LLM.
+    Generate a per-asset markdown note from metrics and predictions.
+
+    Args:
+        metrics_json: str.
+        Metrics JSON path.
+        preds_csv: str.
+        Predictions CSV path.
+        out_md: str.
+        Output markdown path.
+        recent_months: int.
+        Number of recent months summarized for the prompt.
+        model: str.
+        Ollama model name.
+        host: str.
+        Ollama base URL.
+
+    Returns:
+        None.
+        Writes the generated markdown note to disk.
     """
     with open(metrics_json, "r", encoding="utf-8") as f:
         metrics = json.load(f)
 
-    bundle = buildAnalysisBundle(metrics, preds_csv, recent_months=recent_months)
+    bundle = BuildAnalysisBundle(metrics, preds_csv, recent_months=recent_months)
 
     user_prompt = (
         f"{SYSTEM_PROMPT}\n\n"
@@ -149,7 +155,7 @@ def main(metrics_json: str, preds_csv: str, out_md: str, recent_months: int, mod
         f"JSON bundle:\n{json.dumps(bundle, indent=2)}\n"
     )
 
-    note = callOllama(model=model, prompt=user_prompt, host=host)
+    note = CallOllama(model=model, prompt=user_prompt, host=host)
 
     os.makedirs(os.path.dirname(out_md), exist_ok=True)
     with open(out_md, "w", encoding="utf-8") as f:

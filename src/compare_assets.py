@@ -9,7 +9,18 @@ from pathlib import Path
 import pandas as pd
 
 
-def load_metrics(metrics_paths: list[str]) -> pd.DataFrame:
+def LoadMetrics(metrics_paths: list[str]) -> pd.DataFrame:
+    """
+    Load per-asset metrics JSON files into one dataframe.
+
+    Args:
+        metrics_paths: list[str].
+        Paths to per-asset metrics JSON files.
+
+    Returns:
+        metrics_df: pd.DataFrame.
+        Combined metrics table with one row per asset.
+    """
     rows = []
     for path in metrics_paths:
         with open(path, "r", encoding="utf-8") as f:
@@ -19,7 +30,18 @@ def load_metrics(metrics_paths: list[str]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def load_predictions(preds_paths: list[str]) -> pd.DataFrame:
+def LoadPredictions(preds_paths: list[str]) -> pd.DataFrame:
+    """
+    Load per-asset prediction CSV files into one dataframe.
+
+    Args:
+        preds_paths: list[str].
+        Paths to per-asset prediction CSV files.
+
+    Returns:
+        preds_df: pd.DataFrame.
+        Combined predictions table with asset metadata attached.
+    """
     frames = []
     for path in preds_paths:
         df = pd.read_csv(path, parse_dates=["date"])
@@ -32,7 +54,20 @@ def load_predictions(preds_paths: list[str]) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
-def build_recent_behaviour(preds: pd.DataFrame, recent_months: int) -> pd.DataFrame:
+def BuildRecentBehaviour(preds: pd.DataFrame, recent_months: int) -> pd.DataFrame:
+    """
+    Summarize recent observed behavior and forecast error for each asset.
+
+    Args:
+        preds: pd.DataFrame.
+        Combined prediction dataframe across assets.
+        recent_months: int.
+        Number of recent observations to summarize per asset.
+
+    Returns:
+        recent_df: pd.DataFrame.
+        Per-asset recent return, volatility, and error summary table.
+    """
     recent_rows = []
     for asset_key, asset_df in preds.groupby("asset_key"):
         asset_df = asset_df.sort_values("date").copy()
@@ -57,7 +92,18 @@ def build_recent_behaviour(preds: pd.DataFrame, recent_months: int) -> pd.DataFr
     return pd.DataFrame(recent_rows)
 
 
-def build_correlation_matrix(preds: pd.DataFrame) -> dict[str, dict[str, float | None]]:
+def BuildCorrelationMatrix(preds: pd.DataFrame) -> dict[str, dict[str, float | None]]:
+    """
+    Compute the cross-asset correlation matrix for observed returns.
+
+    Args:
+        preds: pd.DataFrame.
+        Combined prediction dataframe containing observed returns.
+
+    Returns:
+        correlation_matrix: dict[str, dict[str, float | None]].
+        Nested mapping of asset-name pairs to correlation values.
+    """
     pivot = preds.pivot_table(index="date", columns="asset_name", values="y_true", aggfunc="first")
     corr = pivot.corr()
     matrix: dict[str, dict[str, float | None]] = {}
@@ -68,7 +114,22 @@ def build_correlation_matrix(preds: pd.DataFrame) -> dict[str, dict[str, float |
     return matrix
 
 
-def build_summary_bundle(summary: pd.DataFrame, preds: pd.DataFrame, recent_months: int) -> dict:
+def BuildSummaryBundle(summary: pd.DataFrame, preds: pd.DataFrame, recent_months: int) -> dict:
+    """
+    Build the grounded summary bundle used by the cross-asset report step.
+
+    Args:
+        summary: pd.DataFrame.
+        Side-by-side per-asset metrics and recent behavior table.
+        preds: pd.DataFrame.
+        Combined prediction dataframe across assets.
+        recent_months: int.
+        Number of recent months represented in the summary.
+
+    Returns:
+        bundle: dict.
+        JSON-serializable cross-asset summary for reporting.
+    """
     best_rmse = summary.sort_values("rmse").iloc[0]
     best_directional = summary.sort_values("directional_accuracy", ascending=False).iloc[0]
     highest_recent_vol = summary.sort_values("recent_volatility", ascending=False).iloc[0]
@@ -92,7 +153,7 @@ def build_summary_bundle(summary: pd.DataFrame, preds: pd.DataFrame, recent_mont
                 "recent_volatility": float(highest_recent_vol["recent_volatility"]),
             },
         },
-        "cross_asset_return_correlation": build_correlation_matrix(preds),
+        "cross_asset_return_correlation": BuildCorrelationMatrix(preds),
         "assets": summary.sort_values("asset_name").to_dict(orient="records"),
     }
 
@@ -104,19 +165,38 @@ def main(
     out_json: str,
     recent_months: int,
 ) -> None:
-    metrics_df = load_metrics(metrics_json)
-    preds_df = load_predictions(preds_csv)
+    """
+    Build cross-asset comparison artifacts from per-asset outputs.
+
+    Args:
+        metrics_json: list[str].
+        Paths to per-asset metrics JSON files.
+        preds_csv: list[str].
+        Paths to per-asset prediction CSV files.
+        out_csv: str.
+        Output path for the comparison table.
+        out_json: str.
+        Output path for the grounded comparison bundle.
+        recent_months: int.
+        Number of recent months to summarize per asset.
+
+    Returns:
+        None.
+        Writes the comparison table and JSON bundle to disk.
+    """
+    metrics_df = LoadMetrics(metrics_json)
+    preds_df = LoadPredictions(preds_csv)
 
     if metrics_df.empty or preds_df.empty:
         raise ValueError("Expected non-empty metrics and prediction inputs for cross-asset comparison.")
 
-    recent_df = build_recent_behaviour(preds_df, recent_months=recent_months)
+    recent_df = BuildRecentBehaviour(preds_df, recent_months=recent_months)
 
     summary = metrics_df.merge(recent_df, on=["asset_key", "asset_name"], how="left")
     summary["prediction_volatility_ratio"] = summary["y_pred_std"] / summary["y_true_std"].replace(0, pd.NA)
     summary = summary.sort_values("rmse").reset_index(drop=True)
 
-    bundle = build_summary_bundle(summary, preds_df, recent_months=recent_months)
+    bundle = BuildSummaryBundle(summary, preds_df, recent_months=recent_months)
 
     os.makedirs(os.path.dirname(out_csv), exist_ok=True)
     summary.to_csv(out_csv, index=False)

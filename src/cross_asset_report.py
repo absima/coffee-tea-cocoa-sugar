@@ -24,7 +24,22 @@ Output format (markdown):
 """
 
 
-def call_ollama(model: str, prompt: str, host: str) -> str:
+def CallOllama(model: str, prompt: str, host: str) -> str:
+    """
+    Send a prompt to Ollama and return the generated comparison note.
+
+    Args:
+        model: str.
+        Ollama model name.
+        prompt: str.
+        Full prompt string sent to the model.
+        host: str.
+        Ollama base URL.
+
+    Returns:
+        response_text: str.
+        Generated markdown response from the local model.
+    """
     url = f"{host}/api/generate"
     payload = {"model": model, "prompt": prompt, "stream": False}
 
@@ -44,6 +59,23 @@ def call_ollama(model: str, prompt: str, host: str) -> str:
 
 
 def main(summary_json: str, out_md: str, model: str, host: str) -> None:
+    """
+    Generate the cross-asset markdown note from the summary bundle.
+
+    Args:
+        summary_json: str.
+        Input JSON path containing grounded cross-asset facts.
+        out_md: str.
+        Output markdown path.
+        model: str.
+        Ollama model name.
+        host: str.
+        Ollama base URL.
+
+    Returns:
+        None.
+        Writes the generated cross-asset note to disk.
+    """
     with open(summary_json, "r", encoding="utf-8") as f:
         bundle = json.load(f)
 
@@ -54,7 +86,7 @@ def main(summary_json: str, out_md: str, model: str, host: str) -> None:
         f"JSON bundle:\n{json.dumps(bundle, indent=2)}\n"
     )
 
-    note = call_ollama(model=model, prompt=prompt, host=host)
+    note = CallOllama(model=model, prompt=prompt, host=host)
 
     os.makedirs(os.path.dirname(out_md), exist_ok=True)
     with open(out_md, "w", encoding="utf-8") as f:
