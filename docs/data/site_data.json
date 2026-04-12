@@ -1,0 +1,457 @@
+{
+  "generated_at": "2026-04-12 00:26 UTC",
+  "steps": [
+    {
+      "title": "Ingest",
+      "description": "Pull monthly commodity series from FRED and standardize them into raw CSV files."
+    },
+    {
+      "title": "Store",
+      "description": "Load each commodity into SQLite so downstream steps consume a stable local source."
+    },
+    {
+      "title": "Features",
+      "description": "Engineer lagged and rolling-return features for one-step-ahead forecasting."
+    },
+    {
+      "title": "Train & Evaluate",
+      "description": "Fit a Ridge baseline per commodity and compare forecast quality across assets."
+    },
+    {
+      "title": "Report",
+      "description": "Generate grounded local-LLM notes plus cross-asset figures for the final demo layer."
+    }
+  ],
+  "raw_preview": {
+    "title": "Coffee raw CSV head",
+    "columns": [
+      "date",
+      "value",
+      "asset_key",
+      "asset_name"
+    ],
+    "rows": [
+      {
+        "date": "1992-01-01",
+        "value": 73.0318181818,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      },
+      {
+        "date": "1992-02-01",
+        "value": 69.298,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      },
+      {
+        "date": "1992-03-01",
+        "value": 69.8936363636,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      },
+      {
+        "date": "1992-04-01",
+        "value": 66.5222727273,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      },
+      {
+        "date": "1992-05-01",
+        "value": 60.7966666667,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      },
+      {
+        "date": "1992-06-01",
+        "value": 59.4481818182,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      },
+      {
+        "date": "1992-07-01",
+        "value": 58.3491304348,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      },
+      {
+        "date": "1992-08-01",
+        "value": 53.3538095238,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)"
+      }
+    ]
+  },
+  "feature_preview": {
+    "title": "Engineered feature preview",
+    "columns": [
+      "date",
+      "value",
+      "asset_key",
+      "asset_name",
+      "log_price",
+      "log_return",
+      "r_lag_1",
+      "r_lag_3",
+      "r_lag_6",
+      "r_lag_12",
+      "r_roll_mean_3",
+      "r_roll_std_3",
+      "r_roll_mean_6",
+      "r_roll_std_6",
+      "r_roll_mean_12",
+      "r_roll_std_12",
+      "y_next_return"
+    ],
+    "rows": [
+      {
+        "date": "1993-02-01",
+        "value": 67.4365,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.2111864144,
+        "log_return": -0.0629633137,
+        "r_lag_1": -0.0451917394,
+        "r_lag_3": 0.0325713061,
+        "r_lag_6": -0.0894990746,
+        "r_lag_12": -0.0524791659,
+        "r_roll_mean_3": 0.0833761256,
+        "r_roll_std_3": 0.2382424746,
+        "r_roll_mean_6": 0.0390401722,
+        "r_roll_std_6": 0.1597403244,
+        "r_roll_mean_12": -0.0022691359,
+        "r_roll_std_12": 0.1191435192,
+        "y_next_return": -0.0417142137
+      },
+      {
+        "date": "1993-03-01",
+        "value": 64.6813043478,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.1694722007,
+        "log_return": -0.0417142137,
+        "r_lag_1": -0.0629633137,
+        "r_lag_3": 0.3582834299,
+        "r_lag_6": -0.0320064614,
+        "r_lag_12": 0.0085585602,
+        "r_roll_mean_3": -0.0499564223,
+        "r_roll_std_3": 0.0113977065,
+        "r_roll_mean_6": 0.0374222134,
+        "r_roll_std_6": 0.1606504255,
+        "r_roll_mean_12": -0.0064585338,
+        "r_roll_std_12": 0.1196111207,
+        "y_next_return": -0.1019072758
+      },
+      {
+        "date": "1993-04-01",
+        "value": 58.4145454545,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.0675649248,
+        "log_return": -0.1019072758,
+        "r_lag_1": -0.0417142137,
+        "r_lag_3": -0.0451917394,
+        "r_lag_6": -0.0164521885,
+        "r_lag_12": -0.0494377861,
+        "r_roll_mean_3": -0.0688616011,
+        "r_roll_std_3": 0.0305269312,
+        "r_roll_mean_6": 0.0231796989,
+        "r_roll_std_6": 0.1699034762,
+        "r_roll_mean_12": -0.0108309912,
+        "r_roll_std_12": 0.1222548931,
+        "y_next_return": 0.0540550518
+      },
+      {
+        "date": "1993-05-01",
+        "value": 61.659047619,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.1216199767,
+        "log_return": 0.0540550518,
+        "r_lag_1": -0.1019072758,
+        "r_lag_3": -0.0629633137,
+        "r_lag_6": 0.0325713061,
+        "r_lag_12": -0.0900018569,
+        "r_roll_mean_3": -0.0298554792,
+        "r_roll_std_3": 0.0786545237,
+        "r_roll_mean_6": 0.0267603232,
+        "r_roll_std_6": 0.1703667315,
+        "r_roll_mean_12": 0.0011737511,
+        "r_roll_std_12": 0.1208386055,
+        "y_next_return": 0.0245332774
+      },
+      {
+        "date": "1993-06-01",
+        "value": 63.1904545455,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.1461532541,
+        "log_return": 0.0245332774,
+        "r_lag_1": 0.0540550518,
+        "r_lag_3": -0.0417142137,
+        "r_lag_6": 0.3582834299,
+        "r_lag_12": -0.0224299236,
+        "r_roll_mean_3": -0.0077729822,
+        "r_roll_std_3": 0.0828482512,
+        "r_roll_mean_6": -0.0288647022,
+        "r_roll_std_6": 0.0577176659,
+        "r_roll_mean_12": 0.0050873512,
+        "r_roll_std_12": 0.1207651339,
+        "y_next_return": 0.1091628289
+      },
+      {
+        "date": "1993-07-01",
+        "value": 70.4790909091,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.255316083,
+        "log_return": 0.1091628289,
+        "r_lag_1": 0.0245332774,
+        "r_lag_3": -0.1019072758,
+        "r_lag_6": -0.0451917394,
+        "r_lag_12": -0.0186605832,
+        "r_roll_mean_3": 0.0625837194,
+        "r_roll_std_3": 0.0429545559,
+        "r_roll_mean_6": -0.0031389408,
+        "r_roll_std_6": 0.0793357211,
+        "r_roll_mean_12": 0.0157393022,
+        "r_roll_std_12": 0.1240720338,
+        "y_next_return": 0.0778783412
+      },
+      {
+        "date": "1993-08-01",
+        "value": 76.1872727273,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.3331944242,
+        "log_return": 0.0778783412,
+        "r_lag_1": 0.1091628289,
+        "r_lag_3": 0.0540550518,
+        "r_lag_6": -0.0629633137,
+        "r_lag_12": -0.0894990746,
+        "r_roll_mean_3": 0.0705248158,
+        "r_roll_std_3": 0.0427913075,
+        "r_roll_mean_6": 0.0203346683,
+        "r_roll_std_6": 0.0789297988,
+        "r_roll_mean_12": 0.0296874202,
+        "r_roll_std_12": 0.1205231435,
+        "y_next_return": 0.0627575289
+      },
+      {
+        "date": "1993-09-01",
+        "value": 81.1218181818,
+        "asset_key": "coffee",
+        "asset_name": "Coffee (Arabica)",
+        "log_price": 4.3959519531,
+        "log_return": 0.0627575289,
+        "r_lag_1": 0.0778783412,
+        "r_lag_3": 0.0245332774,
+        "r_lag_6": -0.0417142137,
+        "r_lag_12": -0.0320064614,
+        "r_roll_mean_3": 0.083266233,
+        "r_roll_std_3": 0.0236671714,
+        "r_roll_mean_6": 0.0377466254,
+        "r_roll_std_6": 0.0738649355,
+        "r_roll_mean_12": 0.0375844194,
+        "r_roll_std_12": 0.1192107589,
+        "y_next_return": -0.056789327
+      }
+    ]
+  },
+  "metrics_summary": [
+    {
+      "asset_key": "cocoa",
+      "asset_name": "Cocoa",
+      "rmse": 0.0999,
+      "mae": 0.0689,
+      "directional_accuracy": 0.6456,
+      "correlation": 0.1569,
+      "rows_train": 317,
+      "rows_test": 79,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01"
+    },
+    {
+      "asset_key": "coffee",
+      "asset_name": "Coffee (Arabica)",
+      "rmse": 0.0652,
+      "mae": 0.0517,
+      "directional_accuracy": 0.5823,
+      "correlation": 0.0723,
+      "rows_train": 317,
+      "rows_test": 79,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01"
+    },
+    {
+      "asset_key": "sugar",
+      "asset_name": "Sugar",
+      "rmse": 0.068,
+      "mae": 0.0505,
+      "directional_accuracy": 0.5063,
+      "correlation": -0.0685,
+      "rows_train": 317,
+      "rows_test": 79,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01"
+    },
+    {
+      "asset_key": "tea",
+      "asset_name": "Tea",
+      "rmse": 0.0498,
+      "mae": 0.0394,
+      "directional_accuracy": 0.5443,
+      "correlation": 0.2329,
+      "rows_train": 317,
+      "rows_test": 79,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01"
+    }
+  ],
+  "cross_asset_table": [
+    {
+      "asset_key": "tea",
+      "asset_name": "Tea",
+      "rows_total": 396,
+      "rows_train": 317,
+      "rows_test": 79,
+      "model": "Ridge(alpha=1.0)",
+      "mae": 0.0394,
+      "rmse": 0.0498,
+      "correlation": 0.2329,
+      "directional_accuracy": 0.5443,
+      "y_true_std": 0.0511,
+      "y_pred_std": 0.006,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01",
+      "n_features": 10,
+      "features_used": "['r_lag_1', 'r_lag_3', 'r_lag_6', 'r_lag_12', 'r_roll_mean_3', 'r_roll_std_3', 'r_roll_mean_6', 'r_roll_std_6', 'r_roll_mean_12', 'r_roll_std_12']",
+      "metrics_path": "reports/metrics/tea.json",
+      "recent_rows": 12,
+      "recent_start": "2025-02-01",
+      "recent_end": "2026-01-01",
+      "recent_mean_return": -0.0079,
+      "recent_volatility": 0.0325,
+      "recent_last_return": -0.0231,
+      "recent_mean_abs_error": 0.0263,
+      "recent_max_abs_error": 0.0676,
+      "recent_positive_share": 0.25,
+      "prediction_volatility_ratio": 0.1176
+    },
+    {
+      "asset_key": "coffee",
+      "asset_name": "Coffee (Arabica)",
+      "rows_total": 396,
+      "rows_train": 317,
+      "rows_test": 79,
+      "model": "Ridge(alpha=1.0)",
+      "mae": 0.0517,
+      "rmse": 0.0652,
+      "correlation": 0.0723,
+      "directional_accuracy": 0.5823,
+      "y_true_std": 0.0653,
+      "y_pred_std": 0.0106,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01",
+      "n_features": 10,
+      "features_used": "['r_lag_1', 'r_lag_3', 'r_lag_6', 'r_lag_12', 'r_roll_mean_3', 'r_roll_std_3', 'r_roll_mean_6', 'r_roll_std_6', 'r_roll_mean_12', 'r_roll_std_12']",
+      "metrics_path": "reports/metrics/coffee.json",
+      "recent_rows": 12,
+      "recent_start": "2025-02-01",
+      "recent_end": "2026-01-01",
+      "recent_mean_return": -0.0202,
+      "recent_volatility": 0.0825,
+      "recent_last_return": -0.1244,
+      "recent_mean_abs_error": 0.064,
+      "recent_max_abs_error": 0.1547,
+      "recent_positive_share": 0.4167,
+      "prediction_volatility_ratio": 0.1629
+    },
+    {
+      "asset_key": "sugar",
+      "asset_name": "Sugar",
+      "rows_total": 396,
+      "rows_train": 317,
+      "rows_test": 79,
+      "model": "Ridge(alpha=1.0)",
+      "mae": 0.0505,
+      "rmse": 0.068,
+      "correlation": -0.0685,
+      "directional_accuracy": 0.5063,
+      "y_true_std": 0.0678,
+      "y_pred_std": 0.0053,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01",
+      "n_features": 10,
+      "features_used": "['r_lag_1', 'r_lag_3', 'r_lag_6', 'r_lag_12', 'r_roll_mean_3', 'r_roll_std_3', 'r_roll_mean_6', 'r_roll_std_6', 'r_roll_mean_12', 'r_roll_std_12']",
+      "metrics_path": "reports/metrics/sugar.json",
+      "recent_rows": 12,
+      "recent_start": "2025-02-01",
+      "recent_end": "2026-01-01",
+      "recent_mean_return": -0.0293,
+      "recent_volatility": 0.0299,
+      "recent_last_return": -0.0403,
+      "recent_mean_abs_error": 0.0337,
+      "recent_max_abs_error": 0.0671,
+      "recent_positive_share": 0.25,
+      "prediction_volatility_ratio": 0.0788
+    },
+    {
+      "asset_key": "cocoa",
+      "asset_name": "Cocoa",
+      "rows_total": 396,
+      "rows_train": 317,
+      "rows_test": 79,
+      "model": "Ridge(alpha=1.0)",
+      "mae": 0.0689,
+      "rmse": 0.0999,
+      "correlation": 0.1569,
+      "directional_accuracy": 0.6456,
+      "y_true_std": 0.1012,
+      "y_pred_std": 0.0053,
+      "test_period_start": "2019-07-01",
+      "test_period_end": "2026-01-01",
+      "n_features": 10,
+      "features_used": "['r_lag_1', 'r_lag_3', 'r_lag_6', 'r_lag_12', 'r_roll_mean_3', 'r_roll_std_3', 'r_roll_mean_6', 'r_roll_std_6', 'r_roll_mean_12', 'r_roll_std_12']",
+      "metrics_path": "reports/metrics/cocoa.json",
+      "recent_rows": 12,
+      "recent_start": "2025-02-01",
+      "recent_end": "2026-01-01",
+      "recent_mean_return": -0.0837,
+      "recent_volatility": 0.1203,
+      "recent_last_return": -0.3357,
+      "recent_mean_abs_error": 0.115,
+      "recent_max_abs_error": 0.3316,
+      "recent_positive_share": 0.3333,
+      "prediction_volatility_ratio": 0.0525
+    }
+  ],
+  "cross_asset_note": "**Cross-commodity behaviour**\n\n* Cocoa has the highest recent volatility at 0.12030337724040979.\n* Tea has the lowest RMSE among all assets at 0.04977819577461584.\n* The correlation between Cocoa and Coffee (Arabica) is relatively high at 0.2974886186880876.\n\n**Model comparison**\n\n* Tea's model has the lowest RMSE, but its directional accuracy is lower than Cocoa's.\n* Sugar's model has a negative correlation with its predicted values, indicating potential issues with its predictions.\n* The models for all assets share similar features and use the same ridge regression algorithm with alpha=1.0.\n\n**Key risks & follow-ups**\n\n* Cocoa's high recent volatility may indicate potential price swings in the near future.\n* Sugar's model performance is uncertain due to its negative correlation, which could affect trading decisions.\n* Further investigation into Tea's relatively low directional accuracy compared to its RMSE might be warranted.\n",
+  "notes_by_asset": {
+    "cocoa": "**Market Behaviour**\n* The cocoa market exhibited a downward trend during the test period from July 2019 to January 2026, with some fluctuations.\n* The asset experienced negative returns in 12 out of the 79 months.\n* The largest absolute error occurred on January 1, 2026.\n\n**Model Performance**\n* The Ridge regression model achieved an Mean Absolute Error (MAE) of 0.0689 and a Root Mean Squared Error (RMSE) of 0.0999.\n* The model had a correlation coefficient of 0.1569 with the target variable.\n* The directional accuracy was 64.56%.\n\n**Confidence & Risks**\n* The recent error summary indicated a mean absolute error of 0.115 and a maximum absolute error of 0.332 on January 1, 2026.\n* The model's standard deviation was significantly lower than the true standard deviation, suggesting underestimation of volatility.\n* The test period covered a range of market conditions, including various economic and weather-related events that may have affected cocoa prices.\n",
+    "coffee": "**Market Behaviour**\n* The Coffee (Arabica) market has experienced high volatility in the recent months, with a range of log returns between -0.14 and 0.15.\n* The most significant error occurred on July 2025, with an absolute error of 0.1547.\n* Recent observations show a trend towards negative log returns, with the exception of August 2025.\n\n**Model Performance**\n* The Ridge regression model (alpha=1.0) has been tested on the period from July 2019 to January 2026.\n* The model achieved a Mean Absolute Error (MAE) of 0.0517 and Root Mean Squared Error (RMSE) of 0.0652.\n* The correlation between predicted and true values is relatively low at 0.0723.\n\n**Confidence & Risks**\n* The model's performance has decreased in the recent months, with a Mean Absolute Error of 0.0640.\n* The maximum absolute error remains high at 0.1547, indicating potential for significant errors in predictions.\n* Further analysis is required to understand the factors contributing to these results and improve model accuracy.\n",
+    "sugar": "### Market Behaviour\n\n* The sugar market exhibits volatile monthly log returns between **2019-07-01** and **2026-01-01**, with a total of **79 rows in the test period**.\n* During this period, the market experienced both positive and negative returns, with the highest absolute error occurring on **2025-05-01** at 0.0670940996215047.\n* The most recent data points indicate a continued volatile trend, with high absolute errors observed for the months of **May, June**, and **July 2025**.\n\n### Model Performance\n\n* The Ridge regression model (alpha=1.0) achieved a mean absolute error (MAE) of **0.05047930573100224** across the test period.\n* The model's root mean squared error (RMSE) was **0.06795241748795643**, indicating that it tends to overestimate large errors.\n* Correlation between true and predicted values was relatively low at -0.06845269064687395, suggesting a need for further refinement.\n\n### Confidence & Risks\n\n* The model's performance during the recent window (12 months) shows a mean absolute error of **0.03366799170974332**, which is higher than the overall MAE.\n* The highest absolute error in this period occurred on **2025-05-01** at 0.0670940996215047, indicating potential for model improvement.\n* Continued monitoring of the market and refinement of the model are necessary to ensure its accuracy and reliability.\n",
+    "tea": "**Market Behaviour**\n\n* The Tea market has exhibited volatile log returns over the observed period (2019-07-01 to 2026-01-01).\n* The market experienced a moderate decline in November 2025, followed by a rebound in December 2025.\n* A significant increase in monthly log returns was observed in August 2025.\n* Recent months have shown varying levels of volatility, with no clear trend.\n\n**Model Performance**\n\n* The Ridge regression model achieved a mean absolute error (MAE) of 0.026310238209209528 over the recent window period.\n* The model's directional accuracy was 54.43% during this time frame.\n* The model performed well in predicting positive log returns, but struggled with negative predictions.\n\n**Confidence & Risks**\n\n* The model's correlation with actual log returns is low at 0.2329448599923987.\n* The Root Mean Squared Error (RMSE) was 0.04977819577461584, indicating some uncertainty in the model's predictions.\n* The recent maximum absolute error of 0.0675759809953142 suggests potential for large prediction errors.\n"
+  },
+  "plots": [
+    {
+      "title": "Recent Returns",
+      "path": "./reports/plots/recent_returns.png",
+      "caption": "Recent observed monthly returns across the tracked commodities."
+    },
+    {
+      "title": "Model Metrics",
+      "path": "./reports/plots/model_metrics.png",
+      "caption": "RMSE and directional accuracy by commodity."
+    },
+    {
+      "title": "Prediction Compression",
+      "path": "./reports/plots/prediction_compression.png",
+      "caption": "How much the model compresses volatility relative to the real series."
+    },
+    {
+      "title": "Actual vs Predicted",
+      "path": "./reports/plots/actual_vs_predicted.png",
+      "caption": "Recent observed versus predicted returns for each commodity."
+    }
+  ]
+}
