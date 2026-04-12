@@ -80,7 +80,7 @@ To preview the generated static site locally:
 python -m http.server 8000
 ```
 
-Then open [http://localhost:8000/docs/](http://localhost:8000/docs/).
+Then open [http://localhost:8000/docs/](https://absima.github.io/coffee-tea-cocoa-sugar/).
 
 
 ## Publish with GitHub Pages
@@ -95,3 +95,8 @@ Use the generated `docs/` directory as the Pages source:
 6. Select your main branch and the `/docs` folder.
 
 The result is a fully static public showcase with no backend and no always-on Ollama server.
+If your repository is named `commodities`, the demo URL will look like:
+
+```text
+https://absima.github.io/coffee-tea-cocoa-sugar/
+```
