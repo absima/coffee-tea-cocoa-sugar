@@ -8,6 +8,26 @@ from pathlib import Path
 import pandas as pd
 
 
+PREFERRED_ASSET_ORDER = ["coffee", "tea", "cocoa", "sugar"]
+
+
+def AssetOrderKey(asset_key: str) -> tuple[int, str]:
+    """
+    Return a stable sort key for the preferred asset presentation order.
+
+    Args:
+        asset_key: str.
+        Machine-friendly asset identifier.
+
+    Returns:
+        sort_key: tuple[int, str].
+        Preferred order index plus fallback lexical ordering.
+    """
+    if asset_key in PREFERRED_ASSET_ORDER:
+        return (PREFERRED_ASSET_ORDER.index(asset_key), asset_key)
+    return (len(PREFERRED_ASSET_ORDER), asset_key)
+
+
 def LoadJson(path: Path) -> dict:
     """
     Load a JSON file from disk.
@@ -73,7 +93,11 @@ def BuildMetricsSummary(metrics_paths: list[Path]) -> tuple[list[dict], list[str
         Summary rows for display and the corresponding asset key order.
     """
     metrics_payloads = [LoadJson(path) for path in metrics_paths]
-    metrics_df = pd.DataFrame(metrics_payloads).sort_values("asset_name").reset_index(drop=True)
+    metrics_df = pd.DataFrame(metrics_payloads)
+    metrics_df["_asset_order"] = metrics_df["asset_key"].map(
+        lambda asset_key: AssetOrderKey(str(asset_key))[0]
+    )
+    metrics_df = metrics_df.sort_values(["_asset_order", "asset_name"]).reset_index(drop=True)
 
     summary_columns = [
         "asset_key",
@@ -155,6 +179,13 @@ def main(
     raw_df = pd.read_csv(raw_csv, parse_dates=["date"])
     features_df = pd.read_csv(features_csv, parse_dates=["date"])
     comparison_df = pd.read_csv(cross_asset_csv)
+    if "asset_key" in comparison_df.columns:
+        comparison_df["_asset_order"] = comparison_df["asset_key"].map(
+            lambda asset_key: AssetOrderKey(str(asset_key))[0]
+        )
+        comparison_df = comparison_df.sort_values(["_asset_order", "asset_name"]).drop(
+            columns="_asset_order"
+        )
 
     metrics_paths = [Path(path) for path in metrics_json]
     metrics_summary, asset_keys = BuildMetricsSummary(metrics_paths)
