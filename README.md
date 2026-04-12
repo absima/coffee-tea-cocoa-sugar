@@ -51,16 +51,25 @@ python -m snakemake -s workflow/Snakefile --cores 1 --latency-wait 30
 
 ## Run the dashboard
 
+The project includes a local Streamlit dashboard as one frontend option for exploring the
+generated artifacts on your own machine.
+
 After the pipeline has generated artifacts in `reports/`, launch the local dashboard:
 
 ```bash
 streamlit run dashboard.py
 ```
 
+This option is:
+- local only
+- useful for inspecting outputs during development
+- not intended for GitHub Pages deployment
+
 
 ## Build the GitHub Pages showcase
 
-The public showcase is built into `docs/` from the files in `web/` plus the latest pipeline artifacts.
+The project also includes a separate static frontend for public sharing.
+The GitHub Pages showcase is built into `docs/` from the files in `web/` plus the latest pipeline artifacts.
 After running the pipeline, build the deployable static site with:
 
 ```bash
@@ -80,7 +89,7 @@ To preview the generated static site locally:
 python -m http.server 8000
 ```
 
-Then open [http://localhost:8000/docs/](https://absima.github.io/coffee-tea-cocoa-sugar/).
+Then open [http://localhost:8000/docs/](http://localhost:8000/docs/).
 
 
 ## Publish with GitHub Pages
@@ -98,5 +107,9 @@ The result is a fully static public showcase with no backend and no always-on Ol
 If your repository is named `commodities`, the demo URL will look like:
 
 ```text
-https://absima.github.io/coffee-tea-cocoa-sugar/
+https://mygithub.github.io/commodities/
 ```
+
+In short:
+- `dashboard.py` = local Streamlit frontend for development and inspection
+- `web/` -> `docs/` = static frontend for GitHub Pages and public sharing
