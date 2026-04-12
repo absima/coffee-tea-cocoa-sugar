@@ -1,0 +1,496 @@
+:root {
+  --bg: #f4efe5;
+  --panel: rgba(255, 250, 242, 0.82);
+  --panel-strong: rgba(255, 248, 238, 0.96);
+  --ink: #26170e;
+  --muted: #67503f;
+  --line: rgba(76, 47, 24, 0.14);
+  --accent: #a44d2f;
+  --accent-soft: #f0c7b1;
+  --accent-alt: #264653;
+  --shadow: 0 24px 60px rgba(70, 42, 20, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(224, 163, 92, 0.22), transparent 28%),
+    radial-gradient(circle at top right, rgba(98, 144, 124, 0.18), transparent 24%),
+    linear-gradient(180deg, #fbf7f0 0%, #efe4d5 100%);
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+}
+
+.page-shell {
+  width: min(1180px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 32px 0 80px;
+}
+
+.hero,
+.stage-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1.6fr 0.9fr;
+  padding: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.76rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 4vw, 4.4rem);
+  line-height: 0.95;
+  max-width: 12ch;
+}
+
+h2 {
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+}
+
+.lede {
+  max-width: 58ch;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+  max-width: 760px;
+}
+
+.hero-pills span {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 248, 238, 0.88);
+  border: 1px solid var(--line);
+  color: var(--accent-alt);
+  font-size: 0.9rem;
+}
+
+.hero-meta {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.meta-card,
+.step-card,
+.data-card,
+.plot-card,
+.report-card {
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+}
+
+.meta-card {
+  padding: 18px 20px;
+}
+
+.meta-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stage-panel {
+  margin-top: 22px;
+  padding: 28px;
+}
+
+.section-heading {
+  margin-bottom: 18px;
+}
+
+.steps-grid,
+.preview-grid,
+.plot-grid,
+.metrics-band {
+  display: grid;
+  gap: 18px;
+}
+
+.steps-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.step-card {
+  padding: 18px;
+}
+
+.step-number {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff8f0;
+  font-size: 0.88rem;
+  margin-bottom: 14px;
+}
+
+.step-card p,
+.plot-card p,
+.report-card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.preview-grid {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.intro-band {
+  background:
+    linear-gradient(135deg, rgba(255, 249, 241, 0.94), rgba(243, 232, 217, 0.78)),
+    var(--panel);
+}
+
+.intro-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.intro-card {
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: rgba(255, 251, 245, 0.94);
+}
+
+.intro-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.data-card,
+.plot-card,
+.report-card {
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 18px 20px 0;
+}
+
+.table-shell {
+  overflow-x: auto;
+  padding: 14px 18px 20px;
+}
+
+.artifact-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.artifact-table th,
+.artifact-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.artifact-table th {
+  color: var(--accent-alt);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metrics-band {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 18px;
+}
+
+.metric-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 249, 241, 0.98), rgba(244, 228, 210, 0.74));
+}
+
+.metric-card strong {
+  display: block;
+  font-size: 1.55rem;
+  margin-top: 8px;
+}
+
+.metric-card span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.plot-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.architecture-panel {
+  background:
+    radial-gradient(circle at top left, rgba(163, 77, 47, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(255, 250, 244, 0.96), rgba(247, 237, 224, 0.82));
+}
+
+.architecture-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) 44px minmax(0, 1fr) 44px minmax(0, 1fr) 44px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+}
+
+.flow-node {
+  min-height: 150px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 251, 244, 0.95);
+}
+
+.flow-node span {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-alt);
+  color: #fff;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+}
+
+.flow-node strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.flow-node p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.flow-arrow {
+  text-align: center;
+  font-size: 1.55rem;
+  color: var(--accent);
+}
+
+.plot-card img {
+  width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #fff;
+}
+
+.plot-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.plot-card header {
+  padding: 18px 20px;
+}
+
+.plot-card .plot-media {
+  height: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.plot-card footer {
+  padding: 18px 20px;
+}
+
+.plot-card footer {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.report-section .section-heading {
+  margin-bottom: 14px;
+}
+
+.report-tabs {
+  margin-bottom: 18px;
+}
+
+.report-layout {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: stretch;
+}
+
+.report-layout .report-card {
+  height: 100%;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.tab-button {
+  border: 1px solid var(--line);
+  background: #fff8f1;
+  color: var(--ink);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.tab-button.active {
+  background: var(--accent);
+  color: #fff8f0;
+  border-color: var(--accent);
+}
+
+.report-card {
+  padding: 20px;
+}
+
+.note-text {
+  margin: 16px 0 0;
+  line-height: 1.7;
+  font-size: 0.98rem;
+  color: #35231a;
+}
+
+.markdown-note > :first-child {
+  margin-top: 0;
+}
+
+.markdown-note h1,
+.markdown-note h2,
+.markdown-note h3,
+.markdown-note h4 {
+  margin: 1rem 0 0.45rem;
+  line-height: 1.2;
+}
+
+.markdown-note p {
+  margin: 0 0 0.85rem;
+}
+
+.markdown-note ul {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+}
+
+.markdown-note li {
+  margin: 0.28rem 0;
+}
+
+.markdown-note strong {
+  color: #1f130d;
+}
+
+.empty-state {
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  color: var(--muted);
+  background: rgba(255, 250, 242, 0.72);
+}
+
+.showcase-footer {
+  padding: 26px 10px 0;
+  text-align: center;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .report-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .page-shell {
+    width: min(100vw - 20px, 1180px);
+    padding-top: 18px;
+  }
+
+  .hero,
+  .stage-panel {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .architecture-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .flow-node {
+    min-height: auto;
+  }
+
+  .flow-arrow {
+    transform: rotate(90deg);
+  }
+
+  .plot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .plot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plot-card .plot-media {
+    height: auto;
+    min-height: 180px;
+  }
+}

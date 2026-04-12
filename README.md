@@ -45,5 +45,53 @@ pip install -r requirements.txt
 From the project root (with the virtual environment activated):
 
 ```bash
-snakemake -s workflow/Snakefile --cores 1 --latency-wait 30
+python -m snakemake -s workflow/Snakefile --cores 1 --latency-wait 30
 ```
+
+
+## Run the dashboard
+
+After the pipeline has generated artifacts in `reports/`, launch the local dashboard:
+
+```bash
+streamlit run dashboard.py
+```
+
+
+## Build the GitHub Pages showcase
+
+The public showcase is built into `docs/` from the files in `web/` plus the latest pipeline artifacts.
+After running the pipeline, build the deployable static site with:
+
+```bash
+python src/build_showcase.py \
+  --raw-csv data/raw/coffee.csv \
+  --features-csv data/processed/coffee_features.csv \
+  --metrics-json reports/metrics/coffee.json reports/metrics/cocoa.json reports/metrics/tea.json reports/metrics/sugar.json \
+  --cross-asset-csv reports/cross_asset_metrics.csv \
+  --cross-asset-note reports/cross_asset_note.md \
+  --notes-dir reports/notes \
+  --out-dir docs
+```
+
+To preview the generated static site locally:
+
+```bash
+python -m http.server 8000
+```
+
+Then open [http://localhost:8000/docs/](http://localhost:8000/docs/).
+
+
+## Publish with GitHub Pages
+
+Use the generated `docs/` directory as the Pages source:
+
+1. Run the pipeline locally.
+2. Build the showcase into `docs/`.
+3. Commit and push the updated `docs/` folder.
+4. In GitHub: `Settings -> Pages -> Build and deployment`.
+5. Choose `Deploy from a branch`.
+6. Select your main branch and the `/docs` folder.
+
+The result is a fully static public showcase with no backend and no always-on Ollama server.

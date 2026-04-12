@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Commodity Pipeline Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Portfolio Demo</p>
+          <h1>Commodity Market Analytics Pipeline</h1>
+          <p class="lede">
+            A reproducible analytics project that turns public commodity time series into
+            engineered features, baseline forecasts, comparison plots, and grounded local-LLM
+            market notes.
+          </p>
+          <div class="hero-pills">
+            <span>Snakemake</span>
+            <span>SQLite</span>
+            <span>Ridge forecasting</span>
+            <span>Ollama report</span>
+          </div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card">
+            <span class="meta-label">Artifacts</span>
+            <strong id="asset-count">0 commodities</strong>
+          </div>
+          <div class="meta-card">
+            <span class="meta-label">Last build</span>
+            <strong id="generated-at">Waiting for pipeline output</strong>
+          </div>
+          <div class="meta-card">
+            <span class="meta-label">Project Focus</span>
+            <strong>End-to-end ML pipeline storytelling</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="stage-panel intro-band">
+        <div class="section-heading">
+          <p class="eyebrow">Purpose</p>
+          <h2>One demo, several layers of pipeline thinking</h2>
+        </div>
+        <div class="intro-grid">
+          <article class="intro-card">
+            <h3>Pipeline design</h3>
+            <p>
+              The project is organized as explicit stages so each artifact can be inspected,
+              reproduced, and reused downstream.
+            </p>
+          </article>
+          <article class="intro-card">
+            <h3>Cross-asset comparison</h3>
+            <p>
+              Coffee, cocoa, tea, and sugar are processed with the same flow so the demo can
+              compare behavior, model quality, and reporting outputs side by side.
+            </p>
+          </article>
+          <article class="intro-card">
+            <h3>Grounded LLM usage</h3>
+            <p>
+              Ollama is used only at the reporting layer, with structured metrics and recent
+              forecast facts as the source of truth.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="stage-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Pipeline Stages</p>
+          <h2>From raw series to analyst note</h2>
+        </div>
+        <div id="steps-grid" class="steps-grid"></div>
+      </section>
+
+      <section class="stage-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Ingest + Features</p>
+          <h2>Real samples from the pipeline</h2>
+        </div>
+        <div class="preview-grid">
+          <div class="data-card">
+            <div class="card-header">
+              <h3 id="raw-title">Raw preview</h3>
+            </div>
+            <div id="raw-table" class="table-shell"></div>
+          </div>
+          <div class="data-card">
+            <div class="card-header">
+              <h3 id="feature-title">Feature preview</h3>
+            </div>
+            <div id="feature-table" class="table-shell"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stage-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Training</p>
+          <h2>Cross-commodity model summary</h2>
+        </div>
+        <div class="metrics-band" id="metrics-band"></div>
+        <div class="data-card">
+          <div class="card-header">
+            <h3>Comparison table</h3>
+          </div>
+          <div id="comparison-table" class="table-shell"></div>
+        </div>
+      </section>
+
+      <section class="stage-panel architecture-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture</p>
+          <h2>How the pipeline is stitched together</h2>
+        </div>
+        <div class="architecture-flow">
+          <div class="flow-node">
+            <span>1</span>
+            <strong>FRED fetch</strong>
+            <p>Monthly commodity series downloaded into raw CSVs.</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <span>2</span>
+            <strong>SQLite store</strong>
+            <p>Each asset is persisted locally for downstream processing.</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <span>3</span>
+            <strong>Feature engineering</strong>
+            <p>Lagged returns and rolling volatility features are generated.</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <span>4</span>
+            <strong>Model + plots</strong>
+            <p>Ridge baselines, metrics, predictions, and comparison visuals.</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <span>5</span>
+            <strong>Ollama note</strong>
+            <p>Grounded markdown reports generated from structured facts.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="stage-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Figures</p>
+          <h2>Visual diagnostics built by the pipeline</h2>
+        </div>
+        <div id="plot-grid" class="plot-grid"></div>
+      </section>
+
+      <section class="stage-panel report-section">
+        <div class="section-heading">
+          <p class="eyebrow">Local LLM Reports</p>
+          <h2>Grounded markdown notes from Ollama</h2>
+        </div>
+        <div class="tabs report-tabs" id="asset-tabs"></div>
+        <div class="report-layout">
+          <article class="report-card">
+            <h3 id="asset-note-title">Per-asset note</h3>
+            <div id="asset-note" class="note-text markdown-note"></div>
+          </article>
+          <article class="report-card">
+            <h3>Cross-asset note</h3>
+            <div id="cross-asset-note" class="note-text markdown-note"></div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="showcase-footer">
+        <p>
+          Built as a local-first, reproducible showcase: data ingestion, training, figures, and
+          Ollama-generated reports are produced offline and published as a static artifact site.
+        </p>
+      </footer>
+    </main>
+
+    <template id="table-template">
+      <table class="artifact-table">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
